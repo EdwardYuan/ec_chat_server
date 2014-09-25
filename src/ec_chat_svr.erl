@@ -7,9 +7,11 @@
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([connect/2, disconnect/2, say/3]).
+-export([start/1, connect/2, disconnect/2, say/3]).
 
-
+start(Port) ->
+	ec_chat_controller:start(),
+	ec_tcp_svr:start(?MODULE, Port, {?MODULE, loop}).
 
 %% ====================================================================
 %% Internal functions
@@ -39,7 +41,7 @@ connect(Nick, Socket) ->
 	case Response of
 		{ok, Lists} ->
 			gen_tcp:send(Socket, Nick ++ " Connected"), 
-			gen_server:cast(ec_chat_controller, {join, Nick, Socket}),
+			join(Nick, Socket),
 			loop(Nick, Socket);
 		nick_in_use ->
 			gen_tcp:send(Socket, "NickName is being used.")
@@ -52,7 +54,7 @@ disconnect(Nick, Socket) ->
 	case Response of
 		ok ->
 			gen_tcp:send(Socket, Nick ++ " disconnected"),
-			gen_server:cast(ec_chat_controller, {left, Nick, Socket}),
+			left(Nick, Socket),
 			ok;
 		user_not_found ->
 			gen_tcp:send(Socket, "Looking for user error, disconnect"),

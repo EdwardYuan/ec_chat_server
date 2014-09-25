@@ -20,32 +20,30 @@ start() ->
 
 %% ====================================================================
 init([]) ->
-	usrtab = ets:new(users, [set]),
-	{ok, {usrtab, users}}.
+	UsrTabId = ets:new(users, [set]),
+	{ok, {UsrTabId, users}}.
 
 
 %% handle_call/3
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:handle_call-3">gen_server:handle_call/3</a>
-
-
 %% ====================================================================
-handle_call({connect, Nick, Socket}, From, {usrtab, {usrtab, users}}) ->
-	case ets:member(usrtab, Nick) of
+handle_call({connect, Nick, Socket}, From, {UsrTabId, users}) ->
+	case ets:member(UsrTabId, Nick) of
 		true ->
 			new_users = users,
 			Reply = nick_in_use;
 		false ->
-			ets:insert(usrtab, {Nick, Socket}),
+			ets:insert(UsrTabId, {Nick, Socket}),
 			new_users = users,
 			Reply = ok
 	end,
     {reply, Reply, new_users};
 
-handle_call({disconnect, Nick, Socket}, From, {usrtab, users}) ->
-	case ets:member(usrtab, Nick) of
+handle_call({disconnect, Nick, Socket}, From, {UsrTabId, users}) ->
+	case ets:member(UsrTabId, Nick) of
 		true ->
-			ets:delete(usrtab, Nick),
+			ets:delete(UsrTabId, Nick),
 			new_users = users;
 		false ->
 			new_users = users,
@@ -66,15 +64,15 @@ handle_call({disconnect, Nick, Socket}, From, {usrtab, users}) ->
 	NewState :: term(),
 	Timeout :: non_neg_integer() | infinity.
 %% ====================================================================
-handle_cast({say, Nick, Content}, {usrtab, users}) ->
+handle_cast({say, Nick, Content}, {UsrTabId, users}) ->
 	broadcast(Nick, Content, users),
     {noreply, users};
 
-handle_cast({join, Nick}, {usrtab, users}) ->
+handle_cast({join, Nick}, {UsrTabId, users}) ->
 	broadcast(Nick, Nick ++ " has Joined", users),
 	{noreply, users};
 
-handle_cast({left, Nick}, {usrtab, users}) ->
+handle_cast({left, Nick}, {UsrTabId, users}) ->
 	broadcast(Nick, Nick ++ " has Left", users),
 	{noreply, users}.
 
@@ -124,8 +122,8 @@ code_change(OldVsn, State, Extra) ->
 %% ====================================================================
 
 
-broadcast(Nick, Msg, {usrtab, users}) ->
-	UserList = ets:tab2list(usrtab),
+broadcast(Nick, Msg, {UsrTabId, users}) ->
+	UserList = ets:tab2list(UsrTabId),
 	Sockets = lists:map(fun({_, Value}) -> Value end, UserList),
 	lists:foreach(fun(Sock) -> gen_tcp:send(Sock, Msg) end, UserList),
 	ok.
