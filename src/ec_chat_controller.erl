@@ -28,7 +28,7 @@ init([]) ->
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:handle_call-3">gen_server:handle_call/3</a>
 %% ====================================================================
-handle_call({connect, Nick, Socket}, From, users) ->
+handle_call({connect, Nick, Socket}, _From, users) ->
 	case ets:member(users, Nick) of
 		true ->
 			new_users = users,
@@ -40,7 +40,7 @@ handle_call({connect, Nick, Socket}, From, users) ->
 	end,
     {reply, Reply, new_users};
 
-handle_call({disconnect, Nick, Socket}, From, users) ->
+handle_call({disconnect, Nick, Socket}, _From, users) ->
 	case ets:member(users, Nick) of
 		true ->
 			ets:delete(users, Nick),
@@ -88,7 +88,7 @@ handle_cast({left, Nick}, users) ->
 	NewState :: term(),
 	Timeout :: non_neg_integer() | infinity.
 %% ====================================================================
-handle_info(Info, State) ->
+handle_info(_Info, State) ->
     {noreply, State}.
 
 
@@ -113,7 +113,7 @@ terminate(Reason, State) ->
 	OldVsn :: Vsn | {down, Vsn},
 	Vsn :: term().
 %% ====================================================================
-code_change(OldVsn, State, Extra) ->
+code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 
