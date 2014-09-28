@@ -31,26 +31,30 @@ init([]) ->
 handle_call({connect, Nick, Socket}, _From, users) ->
 	case ets:member(users, Nick) of
 		true ->
-			new_users = users,
+			New_Users = ets:tab2list(users),
+			%% New_Users = users,
 			Reply = nick_in_use;
 		false ->
 			ets:insert(users, {Nick, Socket}),
-			new_users = users,
+			%% New_Users = users,
+			New_Users = ets:tab2list(users),
 			Reply = ok
 	end,
-    {reply, Reply, new_users};
+    {reply, Reply, New_Users};
 
-handle_call({disconnect, Nick, Socket}, _From, users) ->
+handle_call({disconnect, Nick, _Socket}, _From, users) ->
 	case ets:member(users, Nick) of
 		true ->
 			ets:delete(users, Nick),
-			new_users = users;
+			New_Users = ets:tab2list(users);
+			%% New_Users = users;
 		false ->
-			new_users = users,
+			New_Users = ets:tab2list(users),
+			%% New_Users = users,
 			user_not_exist
 	end,
 	Reply = ok,
-	{reply, Reply, new_users}.			
+	{reply, Reply, New_Users}.			
 
 
 %% handle_cast/2
@@ -101,8 +105,8 @@ handle_info(_Info, State) ->
 			| {shutdown, term()}
 			| term().
 %% ====================================================================
-terminate(Reason, State) ->
-    ok.
+terminate(_Reason, State) ->
+    {ok, State}.
 
 
 %% code_change/3
@@ -122,9 +126,9 @@ code_change(_OldVsn, State, _Extra) ->
 %% ====================================================================
 
 
-broadcast(Nick, Msg, users) ->
+broadcast(_Nick, Msg, users) ->
 	UserList = ets:tab2list(users),
 	Sockets = lists:map(fun({_, Value}) -> Value end, UserList),
-	lists:foreach(fun(Sock) -> gen_tcp:send(Sock, Msg) end, UserList),
+	lists:foreach(fun(Sock) -> gen_tcp:send(Sock, Msg) end, Sockets),
 	ok.
 

@@ -39,7 +39,7 @@ loop(Nick, Socket) ->
 connect(Nick, Socket) ->
 	Response = gen_server:call(ec_chat_controller, {connect, Nick, Socket}, 5000),
 	case Response of
-		{ok, Lists} ->
+		{ok, []} ->
 			gen_tcp:send(Socket, Nick ++ " Connected"), 
 			join(Nick, Socket),
 			loop(Nick, Socket);
@@ -59,7 +59,9 @@ disconnect(Nick, Socket) ->
 		user_not_found ->
 			gen_tcp:send(Socket, "Looking for user error, disconnect"),
 			ok
-	end.
+	end,
+	%% close the socket after the client disconnected from the server
+	gen_tcp:close(Socket).
 
 %% the client has send some messages to others
 say(Nick, Socket, Content) ->

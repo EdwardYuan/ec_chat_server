@@ -16,7 +16,7 @@
 -record(svr_state, {port, loop, ip=any, lsock=null}).
 
 
-start(Name, Port, Loop) ->
+start(_Name, Port, Loop) ->
 	State = #svr_state{port=Port, loop=Loop},
 	gen_server:start_link({local, ?MODULE}, ?MODULE, State, []).
 
@@ -38,7 +38,7 @@ init(State = #svr_state{port=Port}) ->
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:handle_call-3">gen_server:handle_call/3</a>
 
-handle_call(Request, From, State) ->
+handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
 
@@ -55,7 +55,7 @@ handle_cast({accepted, _Pid}, State=#svr_state{}) ->
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:handle_info-2">gen_server:handle_info/2</a>
 
-handle_info(Info, State) ->
+handle_info(_Info, State) ->
     {noreply, State}.
 
 
