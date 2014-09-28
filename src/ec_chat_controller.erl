@@ -32,11 +32,9 @@ handle_call({connect, Nick, Socket}, _From, users) ->
 	case ets:member(users, Nick) of
 		true ->
 			New_Users = ets:tab2list(users),
-			%% New_Users = users,
 			Reply = nick_in_use;
 		false ->
 			ets:insert(users, {Nick, Socket}),
-			%% New_Users = users,
 			New_Users = ets:tab2list(users),
 			Reply = ok
 	end,
@@ -47,10 +45,8 @@ handle_call({disconnect, Nick, _Socket}, _From, users) ->
 		true ->
 			ets:delete(users, Nick),
 			New_Users = ets:tab2list(users);
-			%% New_Users = users;
 		false ->
 			New_Users = ets:tab2list(users),
-			%% New_Users = users,
 			user_not_exist
 	end,
 	Reply = ok,
@@ -60,13 +56,6 @@ handle_call({disconnect, Nick, _Socket}, _From, users) ->
 %% handle_cast/2
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:handle_cast-2">gen_server:handle_cast/2</a>
--spec handle_cast(Request :: term(), State :: term()) -> Result when
-	Result :: {noreply, NewState}
-			| {noreply, NewState, Timeout}
-			| {noreply, NewState, hibernate}
-			| {stop, Reason :: term(), NewState},
-	NewState :: term(),
-	Timeout :: non_neg_integer() | infinity.
 %% ====================================================================
 handle_cast({say, Nick, Content}, users) ->
 	broadcast(Nick, Content, users),
@@ -84,13 +73,6 @@ handle_cast({left, Nick}, users) ->
 %% handle_info/2
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:handle_info-2">gen_server:handle_info/2</a>
--spec handle_info(Info :: timeout | term(), State :: term()) -> Result when
-	Result :: {noreply, NewState}
-			| {noreply, NewState, Timeout}
-			| {noreply, NewState, hibernate}
-			| {stop, Reason :: term(), NewState},
-	NewState :: term(),
-	Timeout :: non_neg_integer() | infinity.
 %% ====================================================================
 handle_info(_Info, State) ->
     {noreply, State}.
@@ -99,11 +81,6 @@ handle_info(_Info, State) ->
 %% terminate/2
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:terminate-2">gen_server:terminate/2</a>
--spec terminate(Reason, State :: term()) -> Any :: term() when
-	Reason :: normal
-			| shutdown
-			| {shutdown, term()}
-			| term().
 %% ====================================================================
 terminate(_Reason, State) ->
     {ok, State}.
@@ -112,10 +89,6 @@ terminate(_Reason, State) ->
 %% code_change/3
 %% ====================================================================
 %% @doc <a href="http://www.erlang.org/doc/man/gen_server.html#Module:code_change-3">gen_server:code_change/3</a>
--spec code_change(OldVsn, State :: term(), Extra :: term()) -> Result when
-	Result :: {ok, NewState :: term()} | {error, Reason :: term()},
-	OldVsn :: Vsn | {down, Vsn},
-	Vsn :: term().
 %% ====================================================================
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
