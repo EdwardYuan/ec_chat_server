@@ -13,7 +13,7 @@ ec_chat_server version 0.0.1
 ###### This is a simple chat room server written in erlang.
 
 ## Platform
-###### Linux (not tested on other platforms such as Windows and OS X)
+###### Linux (not been tested on other platforms such as Windows and OS X)
 
 ## More Information
 
