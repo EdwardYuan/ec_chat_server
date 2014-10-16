@@ -1,6 +1,8 @@
 %% @author yuanbo.edward
 %% @doc @todo Add description to ec_chat_controller.
 
+%% using ets table as the global state is not a good idea here, it will
+%% be better to change it to a dict.
 
 -module(ec_chat_controller).
 -behaviour(gen_server).
@@ -61,10 +63,12 @@ handle_cast({say, Nick, Content}, users) ->
 	broadcast(Nick, Content, users),
     {noreply, users};
 
+%% BROADCAST to all clients that a new user has joined
 handle_cast({join, Nick}, users) ->
 	broadcast(Nick, Nick ++ " has Joined", users),
 	{noreply, users};
 
+%% BROADCAST to all clients that a user has quit
 handle_cast({left, Nick}, users) ->
 	broadcast(Nick, Nick ++ " has Left", users),
 	{noreply, users}.
